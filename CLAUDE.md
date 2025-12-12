@@ -1,7 +1,7 @@
 # NewsStories - Development Guidelines
 
 ## Project Overview
-A News Reader iOS application for the Rox take-home interview project. Fetches and displays articles from NewsAPI.org.
+A News Reader iOS and watchOS application for the Rox take-home interview project. Fetches and displays articles from NewsAPI.org with AI-powered summaries and chat.
 
 ## API Configuration
 
@@ -33,6 +33,23 @@ NewsStories/
         ├── ArticleRowView.swift   # Feed item cell
         ├── WebView.swift          # In-app browser
         └── ArticleChatView.swift  # AI chat component
+
+NewsStoriesWatch Watch App/
+├── Config/
+│   ├── WatchConfig.swift          # Configuration reader
+│   └── Secrets.plist              # API keys (copy from iOS)
+├── Models/
+│   └── Article.swift              # Data models (duplicated for watch)
+├── Services/
+│   ├── WatchNewsAPIService.swift  # News API client
+│   └── WatchClaudeAPIService.swift # Claude API client
+├── ViewModels/
+│   └── WatchNewsFeedViewModel.swift
+└── Views/
+    ├── WatchNewsFeedView.swift    # Carousel news list
+    ├── WatchArticleRowView.swift  # Compact list item
+    ├── WatchArticleDetailView.swift # Detail + AI summary
+    └── WatchArticleChatView.swift # Quick question chat
 ```
 
 ## Key Technical Decisions
@@ -165,3 +182,43 @@ func sendMessage(prompt: String, maxTokens: Int) async throws -> String
 - ViewModels should be testable with dependency injection
 - Service layer uses protocol for mockability
 - ClaudeAPIService uses singleton pattern for simplicity
+
+## watchOS Companion App
+
+### Overview
+The watch app provides the same core functionality optimized for the small screen:
+- News feed browsing with category filtering
+- Article detail with AI summaries
+- AI chat with quick question buttons (no keyboard input)
+
+### Watch-Specific Optimizations
+
+| Feature | iOS | watchOS |
+|---------|-----|---------|
+| Page size | 20 articles | 10 articles |
+| AI summary tokens | 500 | 200 |
+| AI chat tokens | 300 | 150 |
+| Chat input | Text field | Quick question buttons |
+| List style | Plain | Carousel |
+
+### Watch UI Components
+
+#### WatchNewsFeedView
+- Carousel-style list for better scrolling
+- Category picker via sheet
+- Smaller thumbnails and compact text
+
+#### WatchArticleDetailView
+- Condensed layout for small screen
+- AI summary with shorter responses
+- "Ask AI" button to open chat sheet
+
+#### WatchArticleChatView
+- Pre-defined quick questions instead of keyboard input
+- Questions: "Summarize this", "Key points?", "Why important?", "What's next?"
+- Shorter AI responses for readability
+
+### Sharing Code
+Models and API logic are duplicated (not shared) between iOS and watchOS targets for simplicity. In production, consider:
+- Creating a shared framework target
+- Using Swift Package for shared code

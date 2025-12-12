@@ -46,6 +46,38 @@ Edit `Secrets.plist` and add your API keys:
 
 > **Note**: NewsAPI free tier only works on localhost/simulator. Claude API is optional - the app falls back to original content if unavailable.
 
+## watchOS Companion App
+
+The project includes a watchOS companion app with the same functionality:
+
+### Features
+- News feed with category filtering
+- Article detail view with AI summaries
+- AI chat with quick question buttons
+- Optimized UI for small screens
+
+### Adding watchOS Target in Xcode
+
+1. Open the project in Xcode
+2. Go to **File > New > Target**
+3. Select **watchOS > App** and click Next
+4. Set Product Name: `NewsStoriesWatch`
+5. Ensure "Watch App for Existing iOS App" is selected
+6. Click Finish
+
+### Adding Watch App Files
+
+After creating the target, add the files from `NewsStoriesWatch Watch App/` folder:
+1. In Xcode, right-click on the new watch target folder
+2. Select **Add Files to "NewsStoriesWatch"**
+3. Add all files from `NewsStoriesWatch Watch App/` directory
+4. Ensure "Copy items if needed" is checked
+5. Make sure the watch target is selected
+
+### Copy Secrets.plist to Watch App
+
+Copy `NewsStories/Config/Secrets.plist` to `NewsStoriesWatch Watch App/Config/` to share API keys.
+
 ## API Key Security
 
 The API key is stored securely using a plist-based configuration system:
@@ -93,6 +125,24 @@ NewsStories/
         ├── ArticleRowView.swift  # Feed item cell
         ├── WebView.swift         # In-app browser for articles
         └── ArticleChatView.swift # AI chat about articles
+
+NewsStoriesWatch Watch App/
+├── NewsStoriesWatchApp.swift     # Watch app entry point
+├── Config/
+│   ├── WatchConfig.swift         # Configuration reader
+│   └── Secrets.plist             # API keys (copy from iOS app)
+├── Models/
+│   └── Article.swift             # Shared data models
+├── Services/
+│   ├── WatchNewsAPIService.swift # News API client
+│   └── WatchClaudeAPIService.swift # Claude API client
+├── ViewModels/
+│   └── WatchNewsFeedViewModel.swift
+└── Views/
+    ├── WatchNewsFeedView.swift   # Watch news list
+    ├── WatchArticleRowView.swift # Watch list item
+    ├── WatchArticleDetailView.swift # Watch article detail
+    └── WatchArticleChatView.swift # Watch AI chat
 ```
 
 ### Why MVVM?
@@ -150,6 +200,12 @@ NewsStories/
   - Context-aware responses based on article content
   - Blue-themed chat UI with message bubbles
   - Only visible when Claude API is available
+
+- [x] **watchOS Companion App**
+  - Full news feed with carousel-style list
+  - Article detail with AI summaries
+  - Quick question AI chat optimized for watch
+  - Category filtering
 
 ## Technical Details
 

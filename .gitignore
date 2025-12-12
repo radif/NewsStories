@@ -1,5 +1,6 @@
 # Secrets - NEVER commit API keys
 NewsStories/Config/Secrets.plist
+NewsStoriesWatch Watch App/Config/Secrets.plist
 
 # Xcode
 *.xcuserstate
