@@ -13,6 +13,7 @@ struct WatchArticleDetailView: View {
     @State private var isLoadingSummary = false
     @State private var isClaudeAvailable = false
     @State private var showChat = false
+    @State private var showWebView = false
 
     var body: some View {
         ScrollView {
@@ -69,8 +70,10 @@ struct WatchArticleDetailView: View {
                 }
 
                 // Read Full Article Button
-                if let url = article.articleURL {
-                    Link(destination: url) {
+                if article.articleURL != nil {
+                    Button {
+                        showWebView = true
+                    } label: {
                         Label("Read Full Article", systemImage: "safari")
                     }
                     .buttonStyle(.borderedProminent)
@@ -83,6 +86,11 @@ struct WatchArticleDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showChat) {
             WatchArticleChatView(article: article)
+        }
+        .sheet(isPresented: $showWebView) {
+            if let url = article.articleURL {
+                WatchArticleWebView(url: url, title: article.displayTitle)
+            }
         }
         .task {
             await loadAISummary()
