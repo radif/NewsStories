@@ -13,6 +13,7 @@ struct ArticleDetailView: View {
     @State private var aiSummary: String?
     @State private var isLoadingSummary = false
     @State private var useAISummary = false
+    @State private var isClaudeAvailable = false
 
     var body: some View {
         ScrollView {
@@ -53,6 +54,11 @@ struct ArticleDetailView: View {
                     contentSection
 
                     Spacer(minLength: 20)
+
+                    // Chat about article (only if Claude API is available)
+                    if isClaudeAvailable {
+                        ArticleChatView(article: article)
+                    }
 
                     // Read Full Article Button
                     if let url = article.articleURL {
@@ -155,6 +161,7 @@ struct ArticleDetailView: View {
 
         // Check if Claude API is available
         let isAvailable = await ClaudeAPIService.shared.isAvailable
+        isClaudeAvailable = isAvailable
 
         guard isAvailable else {
             isLoadingSummary = false

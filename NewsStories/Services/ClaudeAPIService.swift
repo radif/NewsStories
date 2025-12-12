@@ -135,6 +135,51 @@ final class ClaudeAPIService {
 
         return textContent.text
     }
+
+    // MARK: - Send Message (Chat)
+
+    func sendMessage(prompt: String, maxTokens: Int = 300) async throws -> String {
+        guard let url = URL(string: baseURL) else {
+            throw ClaudeAPIError.invalidURL
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+        request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+        request.setValue("application/json", forHTTPHeaderField: "content-type")
+
+        let body: [String: Any] = [
+            "model": "claude-3-haiku-20240307",
+            "max_tokens": maxTokens,
+            "messages": [
+                ["role": "user", "content": prompt]
+            ]
+        ]
+
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ClaudeAPIError.invalidResponse
+        }
+
+        guard httpResponse.statusCode == 200 else {
+            if httpResponse.statusCode == 401 {
+                throw ClaudeAPIError.unauthorized
+            }
+            throw ClaudeAPIError.apiError("Status code: \(httpResponse.statusCode)")
+        }
+
+        let claudeResponse = try JSONDecoder().decode(ClaudeResponse.self, from: data)
+
+        guard let textContent = claudeResponse.content.first(where: { $0.type == "text" }) else {
+            throw ClaudeAPIError.noContent
+        }
+
+        return textContent.text
+    }
 }
 
 // MARK: - Claude API Error
