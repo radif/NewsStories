@@ -4,7 +4,9 @@ A News Reader iOS application built with SwiftUI that fetches and displays artic
 
 ## Demo
 
-Watch `demo.mp4` to see the project in action.
+![NewsStories Demo](demo.png)
+
+Watch `demo.mp4` to see the full video demo.
 
 ## Setup Instructions
 
