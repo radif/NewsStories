@@ -4,23 +4,32 @@
 A News Reader iOS application for the Rox take-home interview project. Fetches and displays articles from NewsAPI.org.
 
 ## API Configuration
+
+### NewsAPI (News Feed)
 - **Base URL**: `https://newsapi.org/v2`
 - **Endpoint**: `/top-headlines`
-- **API Key**: `34ae7bc139e34e0fb44de558e563bb04`
+- **API Key**: Stored in `Config/Secrets.plist`
+
+### Claude API (AI Summaries)
+- **Base URL**: `https://api.anthropic.com/v1/messages`
+- **Model**: `claude-3-haiku-20240307`
+- **API Key**: Stored in `Services/ClaudeAPIService.swift`
 
 ## Architecture
 This project follows **MVVM (Model-View-ViewModel)** architecture with a clean separation of concerns:
 
 ```
 NewsStories/
+├── Config/           # Configuration (Secrets.plist, Config.swift)
 ├── Models/           # Data models (Article, NewsResponse, Source)
-├── Services/         # Network layer (NewsAPIService)
+├── Services/         # Network layer
+│   ├── NewsAPIService.swift    # News feed API
+│   └── ClaudeAPIService.swift  # AI summaries API
 ├── ViewModels/       # Business logic (NewsFeedViewModel)
-├── Views/            # SwiftUI views
-│   ├── NewsFeedView.swift
-│   ├── ArticleDetailView.swift
-│   └── Components/   # Reusable UI components
-└── Utilities/        # Helpers (DateFormatter, ImageCache)
+└── Views/            # SwiftUI views
+    ├── NewsFeedView.swift
+    ├── ArticleDetailView.swift
+    └── Components/   # Reusable UI components (ArticleRowView, WebView)
 ```
 
 ## Key Technical Decisions
@@ -75,6 +84,46 @@ Parameters:
 }
 ```
 
+## Claude API Integration (AI Summaries)
+
+### How It Works
+1. When `ArticleDetailView` loads, it checks Claude API availability
+2. Availability check: Validates connectivity + API key with minimal request
+3. If available: Generates a 2-3 paragraph summary using `claude-3-haiku`
+4. If unavailable: Falls back to original article content
+
+### Request Format
+```json
+{
+  "model": "claude-3-haiku-20240307",
+  "max_tokens": 500,
+  "messages": [
+    {
+      "role": "user",
+      "content": "Please provide a concise summary..."
+    }
+  ]
+}
+```
+
+### Response Handling
+```swift
+struct ClaudeResponse: Codable {
+    let content: [ClaudeContent]  // Extract text from first content block
+}
+```
+
+### UI States
+- **Loading**: Purple box with spinner + "Generating AI Summary..."
+- **Success**: Purple box with sparkles icon + generated summary
+- **Fallback**: Original article content (no special styling)
+
+### Error Handling
+- Network errors → Fallback to original content
+- Invalid API key → Fallback to original content
+- Timeout (30s) → Fallback to original content
+- All failures are silent (logged to console only)
+
 ## Code Style
 - Use Swift's native concurrency (async/await)
 - Prefer composition over inheritance
@@ -84,3 +133,4 @@ Parameters:
 ## Testing Considerations
 - ViewModels should be testable with dependency injection
 - Service layer uses protocol for mockability
+- ClaudeAPIService uses singleton pattern for simplicity

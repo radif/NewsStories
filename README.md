@@ -55,7 +55,8 @@ NewsStories/
 ├── Models/
 │   └── Article.swift             # Data models (Article, Source, NewsResponse)
 ├── Services/
-│   └── NewsAPIService.swift      # Network layer with async/await
+│   ├── NewsAPIService.swift      # News API client with async/await
+│   └── ClaudeAPIService.swift    # Claude AI API for summaries
 ├── ViewModels/
 │   └── NewsFeedViewModel.swift   # Business logic & state management
 └── Views/
@@ -110,16 +111,36 @@ NewsStories/
   - Visual indicator of selected category
   - Smooth category switching with loading states
 
+- [x] **AI-Powered Article Summaries**
+  - Automatic AI summary generation using Claude API (claude-3-haiku model)
+  - Shows loading spinner while generating summary
+  - Graceful fallback to original content if API unavailable or device offline
+  - Visual distinction with purple-themed summary box
+
 ## Technical Details
 
 ### API Integration
 
+#### NewsAPI (News Feed)
 - **Endpoint**: `https://newsapi.org/v2/top-headlines`
 - **Parameters**:
   - `country=us` (default)
   - `category` (optional filter)
   - `page` & `pageSize` (pagination)
 - **Error Handling**: Network errors, API errors, and parsing errors handled gracefully
+
+#### Claude API (AI Summaries)
+- **Endpoint**: `https://api.anthropic.com/v1/messages`
+- **Model**: `claude-3-haiku-20240307` (fast, cost-effective)
+- **Features**:
+  - Availability check before generating (connectivity + auth validation)
+  - 30-second timeout for requests
+  - Graceful fallback to original content on failure
+- **Flow**:
+  1. Check if device is online
+  2. Validate API key with minimal request
+  3. Generate 2-3 paragraph summary of article
+  4. Display in purple-themed box or fallback to original
 
 ### State Management
 
