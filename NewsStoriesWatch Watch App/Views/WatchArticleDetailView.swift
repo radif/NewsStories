@@ -13,7 +13,7 @@ struct WatchArticleDetailView: View {
     @State private var isLoadingSummary = false
     @State private var isClaudeAvailable = false
     @State private var showChat = false
-    @State private var showWebView = false
+    @State private var showFullArticle = false
 
     var body: some View {
         ScrollView {
@@ -70,15 +70,13 @@ struct WatchArticleDetailView: View {
                 }
 
                 // Read Full Article Button
-                if article.articleURL != nil {
-                    Button {
-                        showWebView = true
-                    } label: {
-                        Label("Read Full Article", systemImage: "safari")
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.orange)
+                Button {
+                    showFullArticle = true
+                } label: {
+                    Label("Full Article", systemImage: "doc.text")
                 }
+                .buttonStyle(.borderedProminent)
+                .tint(.orange)
             }
             .padding(.horizontal)
         }
@@ -87,10 +85,8 @@ struct WatchArticleDetailView: View {
         .sheet(isPresented: $showChat) {
             WatchArticleChatView(article: article)
         }
-        .sheet(isPresented: $showWebView) {
-            if let url = article.articleURL {
-                WatchArticleWebView(url: url, title: article.displayTitle)
-            }
+        .sheet(isPresented: $showFullArticle) {
+            WatchFullArticleView(article: article)
         }
         .task {
             await loadAISummary()
@@ -158,6 +154,69 @@ struct WatchArticleDetailView: View {
         }
 
         isLoadingSummary = false
+    }
+}
+
+// MARK: - Full Article View
+
+struct WatchFullArticleView: View {
+    let article: Article
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                // Title
+                Text(article.displayTitle)
+                    .font(.headline)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                // Source and Date
+                HStack {
+                    Text(article.source.name)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(article.formattedFullDate)
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
+
+                if let author = article.author {
+                    Text("By \(author)")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+
+                Divider()
+
+                // Full Content
+                Text(article.displayContent)
+                    .font(.caption)
+                    .lineSpacing(3)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                // Description (if different from content)
+                if let description = article.description,
+                   description != article.content {
+                    Divider()
+                    Text(description)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineSpacing(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(.horizontal)
+        }
+        .navigationTitle("Full Article")
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Done") {
+                    dismiss()
+                }
+            }
+        }
     }
 }
 
