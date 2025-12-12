@@ -47,6 +47,23 @@ struct NewsFeedView: View {
 
     private var articlesList: some View {
         List {
+            // AI Summary Cell (first, slightly larger)
+            if viewModel.showAISummaryCell {
+                NavigationLink {
+                    if let fullSummary = viewModel.fullSummary {
+                        AISummaryView(fullSummary: fullSummary)
+                    }
+                } label: {
+                    AISummaryRowView(
+                        state: viewModel.aiSummaryState,
+                        shortSummary: viewModel.shortSummary
+                    )
+                }
+                .disabled(viewModel.fullSummary == nil)
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                .listRowSeparator(.hidden)
+            }
+
             ForEach(viewModel.articles) { article in
                 NavigationLink(value: article) {
                     ArticleRowView(article: article)

@@ -33,6 +33,16 @@ enum ViewState: Equatable {
     }
 }
 
+// MARK: - AI Summary State
+
+enum AISummaryState: Equatable {
+    case idle
+    case checking
+    case loading
+    case loaded(short: String, full: String)
+    case unavailable
+}
+
 // MARK: - News Feed ViewModel
 
 @Observable
@@ -42,6 +52,7 @@ final class NewsFeedViewModel {
     private(set) var articles: [Article] = []
     private(set) var state: ViewState = .idle
     private(set) var selectedCategory: NewsCategory? = nil
+    private(set) var aiSummaryState: AISummaryState = .idle
 
     // MARK: - Private Properties
 
@@ -56,6 +67,29 @@ final class NewsFeedViewModel {
 
     var isLoading: Bool {
         state == .loading || state == .loadingMore
+    }
+
+    var shortSummary: String? {
+        if case .loaded(let short, _) = aiSummaryState {
+            return short
+        }
+        return nil
+    }
+
+    var fullSummary: String? {
+        if case .loaded(_, let full) = aiSummaryState {
+            return full
+        }
+        return nil
+    }
+
+    var showAISummaryCell: Bool {
+        switch aiSummaryState {
+        case .idle, .unavailable:
+            return false
+        case .checking, .loading, .loaded:
+            return true
+        }
     }
 
     // MARK: - Initialization
@@ -128,6 +162,11 @@ final class NewsFeedViewModel {
             }
 
             state = articles.isEmpty ? .empty : .loaded
+
+            // Generate AI summary after initial load
+            if !isLoadingMore && !articles.isEmpty {
+                await generateAISummary()
+            }
         } catch {
             if !isLoadingMore {
                 articles = []
@@ -138,6 +177,30 @@ final class NewsFeedViewModel {
             if isLoadingMore {
                 currentPage -= 1
             }
+        }
+    }
+
+    // MARK: - AI Summary
+
+    @MainActor
+    private func generateAISummary() async {
+        aiSummaryState = .checking
+
+        // Check if Claude API is available
+        let isAvailable = await ClaudeAPIService.shared.isAvailable
+        guard isAvailable else {
+            aiSummaryState = .unavailable
+            return
+        }
+
+        aiSummaryState = .loading
+
+        do {
+            let (short, full) = try await ClaudeAPIService.shared.generateNewsDigest(for: articles)
+            aiSummaryState = .loaded(short: short, full: full)
+        } catch {
+            print("Failed to generate AI summary: \(error.localizedDescription)")
+            aiSummaryState = .unavailable
         }
     }
 }

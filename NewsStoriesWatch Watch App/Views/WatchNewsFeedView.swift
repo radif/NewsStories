@@ -10,6 +10,7 @@ import SwiftUI
 struct WatchNewsFeedView: View {
     @State private var viewModel = WatchNewsFeedViewModel()
     @State private var showCategoryPicker = false
+    @State private var showAISummary = false
 
     var body: some View {
         NavigationStack {
@@ -51,6 +52,22 @@ struct WatchNewsFeedView: View {
 
     private var articlesList: some View {
         List {
+            // AI Summary Cell (first)
+            if viewModel.showAISummaryCell {
+                Button {
+                    if viewModel.fullSummary != nil {
+                        showAISummary = true
+                    }
+                } label: {
+                    WatchAISummaryRowView(
+                        state: viewModel.aiSummaryState,
+                        shortSummary: viewModel.shortSummary
+                    )
+                }
+                .buttonStyle(.plain)
+                .disabled(viewModel.fullSummary == nil)
+            }
+
             ForEach(viewModel.articles) { article in
                 NavigationLink(value: article) {
                     WatchArticleRowView(article: article)
@@ -68,6 +85,11 @@ struct WatchNewsFeedView: View {
         .listStyle(.carousel)
         .navigationDestination(for: Article.self) { article in
             WatchArticleDetailView(article: article)
+        }
+        .sheet(isPresented: $showAISummary) {
+            if let fullSummary = viewModel.fullSummary {
+                WatchAISummaryView(fullSummary: fullSummary)
+            }
         }
     }
 
