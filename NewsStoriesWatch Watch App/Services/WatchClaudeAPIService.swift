@@ -23,8 +23,28 @@ final class WatchClaudeAPIService {
 
     private init() {
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 30
+        config.timeoutIntervalForRequest = 15 // Shorter timeout for watch
+        config.timeoutIntervalForResource = 20
         self.session = URLSession(configuration: config)
+    }
+
+    // MARK: - Timeout Helper
+
+    private func withTimeout<T>(seconds: Double, operation: @escaping () async throws -> T) async throws -> T {
+        try await withThrowingTaskGroup(of: T.self) { group in
+            group.addTask {
+                try await operation()
+            }
+
+            group.addTask {
+                try await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+                throw WatchClaudeAPIError.timeout
+            }
+
+            let result = try await group.next()!
+            group.cancelAll()
+            return result
+        }
     }
 
     // MARK: - Check Availability
@@ -137,7 +157,14 @@ final class WatchClaudeAPIService {
 
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        let (data, response) = try await session.data(for: request)
+        print("WatchClaude: Starting digest request...")
+
+        // Use timeout wrapper to prevent hanging
+        let (data, response) = try await withTimeout(seconds: 15) { [session] in
+            try await session.data(for: request)
+        }
+
+        print("WatchClaude: Digest request completed")
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw WatchClaudeAPIError.invalidResponse
@@ -191,7 +218,10 @@ final class WatchClaudeAPIService {
 
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        let (data, response) = try await session.data(for: request)
+        // Use timeout wrapper to prevent hanging
+        let (data, response) = try await withTimeout(seconds: 15) { [session] in
+            try await session.data(for: request)
+        }
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw WatchClaudeAPIError.invalidResponse
@@ -218,6 +248,7 @@ enum WatchClaudeAPIError: LocalizedError {
     case invalidResponse
     case apiError(String)
     case noContent
+    case timeout
 
     var errorDescription: String? {
         switch self {
@@ -225,6 +256,7 @@ enum WatchClaudeAPIError: LocalizedError {
         case .invalidResponse: return "Invalid response"
         case .apiError(let msg): return msg
         case .noContent: return "No content"
+        case .timeout: return "Request timed out"
         }
     }
 }
