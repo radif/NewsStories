@@ -47,7 +47,10 @@ struct AISummaryView: View {
                     .lineSpacing(6)
                     .foregroundStyle(.primary)
 
-                Spacer()
+                Spacer(minLength: 20)
+
+                // Chat about the digest
+                DigestChatView(digestSummary: fullSummary)
             }
             .padding()
         }

@@ -11,6 +11,7 @@ struct WatchAISummaryView: View {
     let fullSummary: String
     @Environment(\.dismiss) private var dismiss
     @State private var speechService = WatchSpeechService.shared
+    @State private var showChat = false
 
     var body: some View {
         ScrollView {
@@ -46,6 +47,15 @@ struct WatchAISummaryView: View {
                     .font(.caption2)
                     .lineSpacing(3)
                     .fixedSize(horizontal: false, vertical: true)
+
+                // Ask AI Button
+                Button {
+                    showChat = true
+                } label: {
+                    Label("Ask AI", systemImage: "bubble.left.and.bubble.right")
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.purple)
             }
             .padding(.horizontal)
         }
@@ -56,6 +66,9 @@ struct WatchAISummaryView: View {
                     dismiss()
                 }
             }
+        }
+        .sheet(isPresented: $showChat) {
+            WatchDigestChatView(digestSummary: fullSummary)
         }
         .onDisappear {
             speechService.stop()
