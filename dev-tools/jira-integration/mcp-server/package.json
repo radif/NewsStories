@@ -1,0 +1,37 @@
+{
+  "name": "@replay/jira-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for JIRA integration in Claude Code",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "jira-mcp-server": "src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node src/test-connection.js",
+    "setup": "node setup.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.6.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.0",
+    "chalk": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol", 
+    "jira",
+    "claude",
+    "integration"
+  ],
+  "author": "Replay Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

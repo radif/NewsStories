@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "jira": {
+      "command": "node",
+      "args": [
+        "/Users/radif/replay/thelastword/replay-dev-tools/jira-integration/mcp-server/src/index.js"
+      ],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}
