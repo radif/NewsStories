@@ -2,9 +2,9 @@
 
 A News Reader iOS application built with SwiftUI that fetches and displays articles from NewsAPI.org, featuring AI-powered summaries and chat using Claude API.
 
-## Screenshots
+## Demo
 
-*Screenshots to be added after implementation*
+Watch `demo.mp4` to see the project in action.
 
 ## Setup Instructions
 
