@@ -48,13 +48,40 @@ Edit `Secrets.plist` and add your API keys:
 
 ## watchOS Companion App
 
-The project includes a watchOS companion app with the same functionality:
+The project includes a full-featured watchOS companion app that mirrors the iOS app functionality, optimized for the Apple Watch form factor.
 
 ### Features
-- News feed with category filtering
-- Article detail view with AI summaries
-- AI chat with quick question buttons
-- Optimized UI for small screens
+
+- **News Feed**
+  - Scrollable list of articles with thumbnails
+  - Category filtering (General, Business, Technology, etc.)
+  - Pull-to-refresh and pagination support
+  - Optimized for Digital Crown navigation
+
+- **Article Detail View**
+  - Full headline and featured image
+  - AI-powered summaries (purple-themed box)
+  - "Full Article" button to view complete article content
+  - Source name, author, and publication date
+
+- **AI Chat**
+  - Multiple input methods:
+    - **Voice dictation** - speak your question
+    - **Scribble** - draw letters with your finger
+    - **Text input** - type using the system keyboard
+  - Quick question buttons for common queries
+  - Context-aware responses about the article
+  - Optimized token limits for watch (200 for summaries, 150 for chat)
+
+### Watch-Specific Optimizations
+
+| Feature | iOS | watchOS |
+|---------|-----|---------|
+| Page size | 20 articles | 10 articles |
+| AI summary tokens | 500 | 200 |
+| AI chat tokens | 500 | 150 |
+| Article view | WebView in-app | Native text content |
+| Input methods | Keyboard | Voice, Scribble, Keyboard |
 
 ### Adding watchOS Target in Xcode
 
@@ -202,10 +229,11 @@ NewsStoriesWatch Watch App/
   - Only visible when Claude API is available
 
 - [x] **watchOS Companion App**
-  - Full news feed with carousel-style list
+  - Full news feed with category filtering
   - Article detail with AI summaries
-  - Quick question AI chat optimized for watch
-  - Category filtering
+  - AI chat with voice, scribble, and text input
+  - Full article content viewer
+  - Optimized UI and reduced token limits for watch
 
 ## Technical Details
 
@@ -288,6 +316,7 @@ Some articles have null images or descriptions. Handled with optional chaining a
 ## Requirements
 
 - iOS 17.0+
+- watchOS 10.0+
 - Xcode 15.0+
 - Swift 5.9+
 
@@ -296,6 +325,8 @@ Some articles have null images or descriptions. Handled with optional chaining a
 **None** - Built entirely with native Apple frameworks:
 - SwiftUI
 - Foundation (URLSession)
+- WebKit (iOS only, for in-app browser)
+- WatchKit (watchOS only)
 
 ## License
 
