@@ -1,6 +1,6 @@
 # NewsStories
 
-A News Reader iOS application built with SwiftUI that fetches and displays articles from NewsAPI.org, featuring AI-powered summaries and chat using Claude API.
+A News Reader iOS and watchOS application built with SwiftUI that fetches and displays articles from NewsAPI.org, featuring AI-powered summaries and chat using Claude API.
 
 ## Demo
 
