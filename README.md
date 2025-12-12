@@ -1,6 +1,6 @@
 # NewsStories
 
-A News Reader iOS application built with SwiftUI that fetches and displays articles from NewsAPI.org.
+A News Reader iOS application built with SwiftUI that fetches and displays articles from NewsAPI.org, featuring AI-powered summaries and chat using Claude API.
 
 ## Screenshots
 
@@ -8,17 +8,43 @@ A News Reader iOS application built with SwiftUI that fetches and displays artic
 
 ## Setup Instructions
 
-1. Clone the repository
-2. Open `NewsStories.xcodeproj` in Xcode 15+
-3. Configure the API key:
-   ```bash
-   cd NewsStories/Config
-   cp Secrets.example.plist Secrets.plist
-   ```
-4. Edit `Secrets.plist` and replace `YOUR_API_KEY_HERE` with your NewsAPI key
-5. Build and run on iOS 17+ simulator or device
+### 1. Clone and Open
+```bash
+git clone git@github.com:radif/NewsStories.git
+cd NewsStories
+open NewsStories.xcodeproj
+```
 
-**Get an API Key**: Register at [NewsAPI.org](https://newsapi.org/register) for a free key.
+### 2. Configure API Keys
+
+Create the secrets file:
+```bash
+cd NewsStories/Config
+cp Secrets.example.plist Secrets.plist
+```
+
+Edit `Secrets.plist` and add your API keys:
+```xml
+<dict>
+    <key>NEWS_API_KEY</key>
+    <string>your_newsapi_key_here</string>
+    <key>CLAUDE_API_KEY</key>
+    <string>your_claude_api_key_here</string>
+</dict>
+```
+
+### 3. Get API Keys
+
+| API | Registration | Purpose |
+|-----|--------------|---------|
+| **NewsAPI** | [newsapi.org/register](https://newsapi.org/register) | News feed data |
+| **Claude API** | [console.anthropic.com](https://console.anthropic.com/) | AI summaries & chat |
+
+### 4. Build and Run
+- Select iOS 17+ simulator or device
+- Build and run (Cmd+R)
+
+> **Note**: NewsAPI free tier only works on localhost/simulator. Claude API is optional - the app falls back to original content if unavailable.
 
 ## API Key Security
 
