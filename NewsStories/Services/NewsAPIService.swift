@@ -48,7 +48,6 @@ protocol NewsAPIServiceProtocol {
 // MARK: - News API Service
 
 final class NewsAPIService: NewsAPIServiceProtocol {
-    private let apiKey = "34ae7bc139e34e0fb44de558e563bb04"
     private let baseURL = "https://newsapi.org/v2"
     private let session: URLSession
 
@@ -56,15 +55,22 @@ final class NewsAPIService: NewsAPIServiceProtocol {
         self.session = session
     }
 
+    private var apiKey: String {
+        get throws {
+            try Config.newsAPIKey
+        }
+    }
+
     func fetchTopHeadlines(
         category: NewsCategory? = nil,
         page: Int = 1,
         pageSize: Int = 20
     ) async throws -> NewsResponse {
+        let key = try apiKey
         var components = URLComponents(string: "\(baseURL)/top-headlines")
 
         var queryItems: [URLQueryItem] = [
-            URLQueryItem(name: "apiKey", value: apiKey),
+            URLQueryItem(name: "apiKey", value: key),
             URLQueryItem(name: "country", value: "us"),
             URLQueryItem(name: "page", value: String(page)),
             URLQueryItem(name: "pageSize", value: String(pageSize))

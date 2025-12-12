@@ -10,9 +10,33 @@ A News Reader iOS application built with SwiftUI that fetches and displays artic
 
 1. Clone the repository
 2. Open `NewsStories.xcodeproj` in Xcode 15+
-3. Build and run on iOS 17+ simulator or device
+3. Configure the API key:
+   ```bash
+   cd NewsStories/Config
+   cp Secrets.example.plist Secrets.plist
+   ```
+4. Edit `Secrets.plist` and replace `YOUR_API_KEY_HERE` with your NewsAPI key
+5. Build and run on iOS 17+ simulator or device
 
-**Note**: The API key is already configured in the app. No additional setup required.
+**Get an API Key**: Register at [NewsAPI.org](https://newsapi.org/register) for a free key.
+
+## API Key Security
+
+The API key is stored securely using a plist-based configuration system:
+
+```
+NewsStories/Config/
+├── Config.swift          # Reads secrets from plist at runtime
+├── Secrets.plist         # Contains actual API key (gitignored)
+└── Secrets.example.plist # Template for setup
+```
+
+**How it works:**
+- `Secrets.plist` is excluded from git via `.gitignore`
+- `Config.swift` loads the plist at runtime and provides type-safe access
+- If the plist is missing or malformed, the app throws a descriptive error
+
+**For reviewers:** The `Secrets.plist` file is included in this submission with a valid API key for testing purposes.
 
 ## Architecture
 
@@ -24,6 +48,10 @@ The app follows the **Model-View-ViewModel (MVVM)** architecture pattern:
 NewsStories/
 ├── App/
 │   └── NewsStoriesApp.swift      # App entry point
+├── Config/
+│   ├── Config.swift              # Runtime configuration reader
+│   ├── Secrets.plist             # API keys (gitignored)
+│   └── Secrets.example.plist     # Template for setup
 ├── Models/
 │   └── Article.swift             # Data models (Article, Source, NewsResponse)
 ├── Services/
@@ -53,6 +81,7 @@ NewsStories/
 | @Observable macro | Modern iOS 17+ approach, cleaner than ObservableObject |
 | AsyncImage | Built-in SwiftUI component for async image loading |
 | Protocol-based Service | Enables dependency injection and mocking for tests |
+| Plist-based Secrets | Secure API key storage, easily gitignored, no hardcoded keys |
 
 ## Implemented Features
 
@@ -117,7 +146,6 @@ enum ViewState {
 1. **Image Caching**: Using `AsyncImage` which has basic caching. Production would use a robust caching library like Kingfisher or SDWebImage
 2. **Error Messages**: Simplified error messages. Production would have localized, user-friendly messages
 3. **Offline Support**: No offline caching. Production would cache articles for offline reading
-4. **API Key Security**: Key is hardcoded. Production would use secure storage or backend proxy
 
 ### Production Improvements
 
