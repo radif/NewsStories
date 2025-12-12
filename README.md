@@ -2,9 +2,20 @@
 
 A News Reader iOS and watchOS application built with SwiftUI that fetches and displays articles from NewsAPI.org, featuring AI-powered summaries and chat using Claude API.
 
-## Demo
+## Screenshots
 
+### News Feed
 ![NewsStories Demo](demo.png)
+
+### AI-Powered Summary
+Automatic article summarization using Claude API with purple-themed UI.
+
+![AI Summary](demo2.png)
+
+### AI Chat
+Interactive chat to ask questions about articles with context-aware responses.
+
+![AI Chat](demo3.png)
 
 Watch `demo.mp4` to see the full video demo.
 
@@ -224,15 +235,11 @@ NewsStoriesWatch Watch App/
   - Graceful fallback to original content if API unavailable or device offline
   - Visual distinction with purple-themed summary box
 
-  ![AI Summary](demo2.png)
-
 - [x] **AI Chat About Articles**
   - Interactive chat to ask questions about the article
   - Context-aware responses based on article content
   - Blue-themed chat UI with message bubbles
   - Only visible when Claude API is available
-
-  ![AI Chat](demo3.png)
 
 - [x] **watchOS Companion App**
   - Full news feed with category filtering
