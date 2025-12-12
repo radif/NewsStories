@@ -83,6 +83,24 @@ NewsStoriesWatch Watch App/
 - Speaker button shows animated state while speaking
 - User can tap to interrupt speech
 
+#### SpeechService Methods
+```swift
+// Check if TTS voices are available on device
+static var isAvailable: Bool
+
+// Start speaking the given text
+func speak(_ text: String)
+
+// Stop current speech
+func stop()
+
+// Toggle speech (start if stopped, stop if speaking)
+func toggle(_ text: String)
+
+// Observable property for UI binding
+private(set) var isSpeaking: Bool
+```
+
 ## API Usage Notes
 
 ### Top Headlines Endpoint

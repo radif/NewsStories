@@ -7,6 +7,7 @@ A News Reader iOS and watchOS application built with SwiftUI that fetches and di
 - **AI News Digest** - Get an AI-generated summary of all top headlines as soon as you open the app. Tap to read the full digest, listen with text-to-speech, or ask follow-up questions.
 - **Article AI Summary** - Each article gets an intelligent AI summary so you can quickly understand the key points.
 - **AI Chat** - Ask questions about any article or the daily news digest and get context-aware answers.
+- **Text-to-Speech** - Listen to the AI digest with the built-in speaker button. Tap to play/pause.
 - **watchOS Companion** - Full-featured Apple Watch app with voice input, scribble, and optimized UI.
 
 ## Screenshots
@@ -73,6 +74,7 @@ The project includes a full-featured watchOS companion app that mirrors the iOS 
 ### Features
 
 - **News Feed**
+  - AI News Digest as first cell with text-to-speech support
   - Scrollable list of articles with thumbnails
   - Category filtering (General, Business, Technology, etc.)
   - Pull-to-refresh and pagination support
@@ -161,17 +163,20 @@ NewsStories/
 │   └── Article.swift             # Data models (Article, Source, NewsResponse)
 ├── Services/
 │   ├── NewsAPIService.swift      # News API client with async/await
-│   └── ClaudeAPIService.swift    # Claude AI API for summaries
+│   ├── ClaudeAPIService.swift    # Claude AI API for summaries
+│   └── SpeechService.swift       # Text-to-speech for AI digest
 ├── ViewModels/
 │   └── NewsFeedViewModel.swift   # Business logic & state management
 └── Views/
     ├── ContentView.swift         # Root navigation
     ├── NewsFeedView.swift        # Article list with pagination
     ├── ArticleDetailView.swift   # Full article display
+    ├── AISummaryView.swift       # AI News Digest full view
     └── Components/
         ├── ArticleRowView.swift  # Feed item cell
         ├── WebView.swift         # In-app browser for articles
-        └── ArticleChatView.swift # AI chat about articles
+        ├── ArticleChatView.swift # AI chat about articles
+        └── DigestChatView.swift  # AI chat for news digest
 
 NewsStoriesWatch Watch App/
 ├── NewsStoriesWatchApp.swift     # Watch app entry point
@@ -182,14 +187,17 @@ NewsStoriesWatch Watch App/
 │   └── Article.swift             # Shared data models
 ├── Services/
 │   ├── WatchNewsAPIService.swift # News API client
-│   └── WatchClaudeAPIService.swift # Claude API client
+│   ├── WatchClaudeAPIService.swift # Claude API client
+│   └── WatchSpeechService.swift  # Text-to-speech for AI digest
 ├── ViewModels/
 │   └── WatchNewsFeedViewModel.swift
 └── Views/
     ├── WatchNewsFeedView.swift   # Watch news list
     ├── WatchArticleRowView.swift # Watch list item
     ├── WatchArticleDetailView.swift # Watch article detail
-    └── WatchArticleChatView.swift # Watch AI chat
+    ├── WatchArticleChatView.swift # Watch AI chat
+    ├── WatchAISummaryView.swift  # AI News Digest full view
+    └── WatchDigestChatView.swift # AI chat for news digest
 ```
 
 ### Why MVVM?
@@ -230,6 +238,12 @@ NewsStoriesWatch Watch App/
   - Back navigation to feed
 
 ### Extra Credit
+
+- [x] **AI News Digest**
+  - Automatic AI-generated summary of all top headlines
+  - Displayed as first cell in the news feed
+  - Text-to-speech with speaker button (tap to play/pause)
+  - Ask follow-up questions via AI chat
 
 - [x] **Category Filtering**
   - Filter by: General, Business, Technology, Entertainment, Health, Science, Sports
@@ -345,6 +359,7 @@ Some articles have null images or descriptions. Handled with optional chaining a
 **None** - Built entirely with native Apple frameworks:
 - SwiftUI
 - Foundation (URLSession)
+- AVFoundation (Text-to-speech)
 - WebKit (iOS only, for in-app browser)
 - WatchKit (watchOS only)
 
