@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ArticleDetailView: View {
     let article: Article
-    @Environment(\.openURL) private var openURL
+    @State private var showWebView = false
 
     var body: some View {
         ScrollView {
@@ -82,6 +82,11 @@ struct ArticleDetailView: View {
                 }
             }
         }
+        .fullScreenCover(isPresented: $showWebView) {
+            if let url = article.articleURL {
+                ArticleWebView(url: url, title: article.source.name)
+            }
+        }
     }
 
     // MARK: - Featured Image
@@ -128,12 +133,12 @@ struct ArticleDetailView: View {
 
     private func readFullArticleButton(url: URL) -> some View {
         Button {
-            openURL(url)
+            showWebView = true
         } label: {
             HStack {
                 Text("Read Full Article")
                     .fontWeight(.semibold)
-                Image(systemName: "arrow.up.right")
+                Image(systemName: "book")
             }
             .frame(maxWidth: .infinity)
             .padding()
