@@ -31,37 +31,16 @@ final class WatchClaudeAPIService {
 
     var isAvailable: Bool {
         get async {
-            guard let key = try? apiKey else {
+            guard let key = try? apiKey, !key.isEmpty else {
                 print("WatchClaude: Failed to get API key")
                 return false
             }
 
-            guard let url = URL(string: baseURL) else { return false }
-
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue(key, forHTTPHeaderField: "x-api-key")
-            request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
-            request.setValue("application/json", forHTTPHeaderField: "content-type")
-
-            let body: [String: Any] = [
-                "model": "claude-3-haiku-20240307",
-                "max_tokens": 1,
-                "messages": [["role": "user", "content": "hi"]]
-            ]
-
-            request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-
-            do {
-                let (_, response) = try await session.data(for: request)
-                if let httpResponse = response as? HTTPURLResponse {
-                    return httpResponse.statusCode == 200
-                }
-                return false
-            } catch {
-                print("WatchClaude: Availability check error: \(error.localizedDescription)")
-                return false
-            }
+            // On watch, just verify we have a valid API key format
+            // Skip the network check to avoid blocking - we'll handle errors during actual requests
+            let isValidKeyFormat = key.hasPrefix("sk-ant-")
+            print("WatchClaude: API key valid format = \(isValidKeyFormat)")
+            return isValidKeyFormat
         }
     }
 
