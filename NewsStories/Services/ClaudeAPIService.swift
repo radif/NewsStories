@@ -12,9 +12,14 @@ import Foundation
 final class ClaudeAPIService {
     static let shared = ClaudeAPIService()
 
-    private let apiKey = "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"
     private let baseURL = "https://api.anthropic.com/v1/messages"
     private let session: URLSession
+
+    private var apiKey: String {
+        get throws {
+            try Config.claudeAPIKey
+        }
+    }
 
     private init() {
         let config = URLSessionConfiguration.default
@@ -27,13 +32,14 @@ final class ClaudeAPIService {
     var isAvailable: Bool {
         get async {
             guard isOnline else { return false }
+            guard let key = try? apiKey else { return false }
 
             // Quick ping to check if API is reachable
             guard let url = URL(string: baseURL) else { return false }
 
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
-            request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+            request.setValue(key, forHTTPHeaderField: "x-api-key")
             request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
             request.setValue("application/json", forHTTPHeaderField: "content-type")
 
@@ -83,13 +89,14 @@ final class ClaudeAPIService {
     // MARK: - Generate Summary
 
     func generateSummary(for article: Article) async throws -> String {
+        let key = try apiKey
         guard let url = URL(string: baseURL) else {
             throw ClaudeAPIError.invalidURL
         }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+        request.setValue(key, forHTTPHeaderField: "x-api-key")
         request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
         request.setValue("application/json", forHTTPHeaderField: "content-type")
 
@@ -139,13 +146,14 @@ final class ClaudeAPIService {
     // MARK: - Send Message (Chat)
 
     func sendMessage(prompt: String, maxTokens: Int = 300) async throws -> String {
+        let key = try apiKey
         guard let url = URL(string: baseURL) else {
             throw ClaudeAPIError.invalidURL
         }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+        request.setValue(key, forHTTPHeaderField: "x-api-key")
         request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
         request.setValue("application/json", forHTTPHeaderField: "content-type")
 

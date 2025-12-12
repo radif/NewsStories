@@ -8,12 +8,12 @@ A News Reader iOS application for the Rox take-home interview project. Fetches a
 ### NewsAPI (News Feed)
 - **Base URL**: `https://newsapi.org/v2`
 - **Endpoint**: `/top-headlines`
-- **API Key**: Stored in `Config/Secrets.plist`
+- **API Key**: Stored in `Config/Secrets.plist` as `NEWS_API_KEY`
 
-### Claude API (AI Summaries)
+### Claude API (AI Features)
 - **Base URL**: `https://api.anthropic.com/v1/messages`
 - **Model**: `claude-3-haiku-20240307`
-- **API Key**: Stored in `Services/ClaudeAPIService.swift`
+- **API Key**: Stored in `Config/Secrets.plist` as `CLAUDE_API_KEY`
 
 ## Architecture
 This project follows **MVVM (Model-View-ViewModel)** architecture with a clean separation of concerns:

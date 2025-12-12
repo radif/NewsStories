@@ -42,4 +42,16 @@ enum Config {
             return key
         }
     }
+
+    static var claudeAPIKey: String {
+        get throws {
+            guard let secrets else {
+                throw Error.missingPlist
+            }
+            guard let key = secrets["CLAUDE_API_KEY"] as? String else {
+                throw Error.missingKey("CLAUDE_API_KEY")
+            }
+            return key
+        }
+    }
 }
