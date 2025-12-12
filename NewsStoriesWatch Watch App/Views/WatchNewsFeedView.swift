@@ -11,6 +11,7 @@ struct WatchNewsFeedView: View {
     @State private var viewModel = WatchNewsFeedViewModel()
     @State private var showCategoryPicker = false
     @State private var showAISummary = false
+    @State private var speechService = WatchSpeechService.shared
 
     var body: some View {
         NavigationStack {
@@ -61,7 +62,14 @@ struct WatchNewsFeedView: View {
                 } label: {
                     WatchAISummaryRowView(
                         state: viewModel.aiSummaryState,
-                        shortSummary: viewModel.shortSummary
+                        shortSummary: viewModel.shortSummary,
+                        fullSummary: viewModel.fullSummary,
+                        onSpeakerTap: {
+                            if let fullSummary = viewModel.fullSummary {
+                                speechService.toggle(fullSummary)
+                            }
+                        },
+                        isSpeaking: speechService.isSpeaking
                     )
                 }
                 .buttonStyle(.plain)

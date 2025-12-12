@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AISummaryView: View {
     let fullSummary: String
+    @State private var speechService = SpeechService.shared
 
     var body: some View {
         ScrollView {
@@ -22,6 +23,21 @@ struct AISummaryView: View {
                     Text("AI News Digest")
                         .font(.title2)
                         .fontWeight(.bold)
+
+                    Spacer()
+
+                    // Speaker Button
+                    if SpeechService.isAvailable {
+                        Button {
+                            speechService.toggle(fullSummary)
+                        } label: {
+                            Image(systemName: speechService.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2")
+                                .font(.title2)
+                                .foregroundStyle(speechService.isSpeaking ? .purple : .secondary)
+                                .symbolEffect(.variableColor.iterative, isActive: speechService.isSpeaking)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
                 .padding(.bottom, 8)
 
@@ -38,6 +54,9 @@ struct AISummaryView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle("AI Summary")
         .navigationBarTitleDisplayMode(.inline)
+        .onDisappear {
+            speechService.stop()
+        }
     }
 }
 
@@ -46,6 +65,9 @@ struct AISummaryView: View {
 struct AISummaryRowView: View {
     let state: AISummaryState
     let shortSummary: String?
+    let fullSummary: String?
+    var onSpeakerTap: (() -> Void)? = nil
+    var isSpeaking: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -67,6 +89,16 @@ struct AISummaryRowView: View {
                 } else if case .checking = state {
                     ProgressView()
                         .scaleEffect(0.8)
+                } else if case .loaded = state, SpeechService.isAvailable, fullSummary != nil {
+                    Button {
+                        onSpeakerTap?()
+                    } label: {
+                        Image(systemName: isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2")
+                            .font(.body)
+                            .foregroundStyle(isSpeaking ? .purple : .secondary)
+                            .symbolEffect(.variableColor.iterative, isActive: isSpeaking)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
 
@@ -129,14 +161,15 @@ struct AISummaryRowView: View {
 }
 
 #Preview("Row Loading") {
-    AISummaryRowView(state: .loading, shortSummary: nil)
+    AISummaryRowView(state: .loading, shortSummary: nil, fullSummary: nil)
         .padding()
 }
 
 #Preview("Row Loaded") {
     AISummaryRowView(
-        state: .loaded(short: "Today: Tech giants announce major AI breakthroughs", full: ""),
-        shortSummary: "Today: Tech giants announce major AI breakthroughs while markets respond to economic shifts."
+        state: .loaded(short: "Today: Tech giants announce major AI breakthroughs", full: "Full summary here"),
+        shortSummary: "Today: Tech giants announce major AI breakthroughs while markets respond to economic shifts.",
+        fullSummary: "Full summary here"
     )
     .padding()
 }

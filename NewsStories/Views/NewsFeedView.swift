@@ -10,6 +10,7 @@ import SwiftUI
 struct NewsFeedView: View {
     @State private var viewModel = NewsFeedViewModel()
     @State private var showCategoryPicker = false
+    @State private var speechService = SpeechService.shared
 
     var body: some View {
         NavigationStack {
@@ -56,7 +57,14 @@ struct NewsFeedView: View {
                 } label: {
                     AISummaryRowView(
                         state: viewModel.aiSummaryState,
-                        shortSummary: viewModel.shortSummary
+                        shortSummary: viewModel.shortSummary,
+                        fullSummary: viewModel.fullSummary,
+                        onSpeakerTap: {
+                            if let fullSummary = viewModel.fullSummary {
+                                speechService.toggle(fullSummary)
+                            }
+                        },
+                        isSpeaking: speechService.isSpeaking
                     )
                 }
                 .disabled(viewModel.fullSummary == nil)

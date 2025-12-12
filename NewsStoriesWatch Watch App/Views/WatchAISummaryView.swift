@@ -10,6 +10,7 @@ import SwiftUI
 struct WatchAISummaryView: View {
     let fullSummary: String
     @Environment(\.dismiss) private var dismiss
+    @State private var speechService = WatchSpeechService.shared
 
     var body: some View {
         ScrollView {
@@ -24,6 +25,20 @@ struct WatchAISummaryView: View {
                         .font(.caption)
                         .fontWeight(.bold)
                         .foregroundStyle(.purple)
+
+                    Spacer()
+
+                    // Speaker Button
+                    if WatchSpeechService.isAvailable {
+                        Button {
+                            speechService.toggle(fullSummary)
+                        } label: {
+                            Image(systemName: speechService.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2")
+                                .font(.caption)
+                                .foregroundStyle(speechService.isSpeaking ? .purple : .secondary)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
 
                 // Full Summary
@@ -42,6 +57,9 @@ struct WatchAISummaryView: View {
                 }
             }
         }
+        .onDisappear {
+            speechService.stop()
+        }
     }
 }
 
@@ -50,6 +68,17 @@ struct WatchAISummaryView: View {
 struct WatchAISummaryRowView: View {
     let state: WatchAISummaryState
     let shortSummary: String?
+    let fullSummary: String?
+    var onSpeakerTap: (() -> Void)? = nil
+    var isSpeaking: Bool = false
+
+    init(state: WatchAISummaryState, shortSummary: String?, fullSummary: String? = nil, onSpeakerTap: (() -> Void)? = nil, isSpeaking: Bool = false) {
+        self.state = state
+        self.shortSummary = shortSummary
+        self.fullSummary = fullSummary
+        self.onSpeakerTap = onSpeakerTap
+        self.isSpeaking = isSpeaking
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -72,6 +101,15 @@ struct WatchAISummaryRowView: View {
                 } else if case .checking = state {
                     ProgressView()
                         .scaleEffect(0.6)
+                } else if case .loaded = state, WatchSpeechService.isAvailable, fullSummary != nil {
+                    Button {
+                        onSpeakerTap?()
+                    } label: {
+                        Image(systemName: isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2")
+                            .font(.caption2)
+                            .foregroundStyle(isSpeaking ? .purple : .secondary)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
 
@@ -125,7 +163,8 @@ struct WatchAISummaryRowView: View {
 #Preview("Row Loaded") {
     WatchAISummaryRowView(
         state: .loaded(short: "Today: Tech and markets dominate", full: ""),
-        shortSummary: "Today: Tech and markets dominate headlines"
+        shortSummary: "Today: Tech and markets dominate headlines",
+        fullSummary: "Full summary here"
     )
     .padding()
 }
