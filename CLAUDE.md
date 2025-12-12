@@ -189,7 +189,8 @@ func sendMessage(prompt: String, maxTokens: Int) async throws -> String
 The watch app provides the same core functionality optimized for the small screen:
 - News feed browsing with category filtering
 - Article detail with AI summaries
-- AI chat with quick question buttons (no keyboard input)
+- Full article content viewer (native text, no WebView)
+- AI chat with voice, scribble, and text input
 
 ### Watch-Specific Optimizations
 
@@ -198,7 +199,8 @@ The watch app provides the same core functionality optimized for the small scree
 | Page size | 20 articles | 10 articles |
 | AI summary tokens | 500 | 200 |
 | AI chat tokens | 300 | 150 |
-| Chat input | Text field | Quick question buttons |
+| Chat input | Keyboard | Voice, Scribble, Keyboard |
+| Article view | WebView in-app | Native text content |
 | List style | Plain | Carousel |
 
 ### Watch UI Components
@@ -212,13 +214,38 @@ The watch app provides the same core functionality optimized for the small scree
 - Condensed layout for small screen
 - AI summary with shorter responses
 - "Ask AI" button to open chat sheet
+- "Full Article" button to view complete article content
+
+#### WatchFullArticleView
+- Shows full article content (same content used by Claude for summarization)
+- Displays title, source, author, date, and article text
+- Native text view (no WebView - watchOS limitation)
 
 #### WatchArticleChatView
-- Pre-defined quick questions instead of keyboard input
-- Questions: "Summarize this", "Key points?", "Why important?", "What's next?"
-- Shorter AI responses for readability
+- Multiple input methods via TextField (watchOS presents system input UI):
+  - **Voice dictation** - speak your question
+  - **Scribble** - draw letters with finger
+  - **Text input** - system keyboard
+- Quick question buttons: "Summarize this", "Key points?", "Why important?", "What's next?"
+- Shorter AI responses for readability (150 tokens max)
 
 ### Sharing Code
 Models and API logic are duplicated (not shared) between iOS and watchOS targets for simplicity. In production, consider:
 - Creating a shared framework target
 - Using Swift Package for shared code
+
+## App Icons
+
+### Design
+- Blue (#3B82F6) background representing trust and professionalism
+- White document/paper shape with rounded corners
+- Text lines representing article content (title + body)
+- News/article theme matching the app's purpose
+
+### iOS Icons
+- `AppIcon.png` - Light mode (blue background, white document)
+- `AppIcon-Dark.png` - Dark mode (dark slate background, gray document)
+- `AppIcon-Tinted.png` - Tinted mode (monochrome for iOS tinting)
+
+### watchOS Icon
+- `AppIcon.png` - Universal (matches iOS light mode)
