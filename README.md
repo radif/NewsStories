@@ -64,7 +64,9 @@ NewsStories/
     ├── NewsFeedView.swift        # Article list with pagination
     ├── ArticleDetailView.swift   # Full article display
     └── Components/
-        └── ArticleRowView.swift  # Feed item cell
+        ├── ArticleRowView.swift  # Feed item cell
+        ├── WebView.swift         # In-app browser for articles
+        └── ArticleChatView.swift # AI chat about articles
 ```
 
 ### Why MVVM?
@@ -117,6 +119,12 @@ NewsStories/
   - Graceful fallback to original content if API unavailable or device offline
   - Visual distinction with purple-themed summary box
 
+- [x] **AI Chat About Articles**
+  - Interactive chat to ask questions about the article
+  - Context-aware responses based on article content
+  - Blue-themed chat UI with message bubbles
+  - Only visible when Claude API is available
+
 ## Technical Details
 
 ### API Integration
@@ -129,18 +137,23 @@ NewsStories/
   - `page` & `pageSize` (pagination)
 - **Error Handling**: Network errors, API errors, and parsing errors handled gracefully
 
-#### Claude API (AI Summaries)
+#### Claude API (AI Features)
 - **Endpoint**: `https://api.anthropic.com/v1/messages`
 - **Model**: `claude-3-haiku-20240307` (fast, cost-effective)
 - **Features**:
   - Availability check before generating (connectivity + auth validation)
   - 30-second timeout for requests
   - Graceful fallback to original content on failure
-- **Flow**:
+- **AI Summary Flow**:
   1. Check if device is online
   2. Validate API key with minimal request
   3. Generate 2-3 paragraph summary of article
   4. Display in purple-themed box or fallback to original
+- **AI Chat Flow**:
+  1. User types question in chat input
+  2. Send question with article context to Claude
+  3. Display response in chat bubble
+  4. Maintain conversation history within session
 
 ### State Management
 

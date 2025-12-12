@@ -29,7 +29,10 @@ NewsStories/
 └── Views/            # SwiftUI views
     ├── NewsFeedView.swift
     ├── ArticleDetailView.swift
-    └── Components/   # Reusable UI components (ArticleRowView, WebView)
+    └── Components/   # Reusable UI components
+        ├── ArticleRowView.swift   # Feed item cell
+        ├── WebView.swift          # In-app browser
+        └── ArticleChatView.swift  # AI chat component
 ```
 
 ## Key Technical Decisions
@@ -84,13 +87,27 @@ Parameters:
 }
 ```
 
-## Claude API Integration (AI Summaries)
+## Claude API Integration (AI Features)
+
+### Overview
+The app uses Claude API for two AI-powered features:
+1. **AI Summary** - Automatic article summarization
+2. **AI Chat** - Interactive Q&A about the article
 
 ### How It Works
+
+#### AI Summary
 1. When `ArticleDetailView` loads, it checks Claude API availability
 2. Availability check: Validates connectivity + API key with minimal request
 3. If available: Generates a 2-3 paragraph summary using `claude-3-haiku`
 4. If unavailable: Falls back to original article content
+
+#### AI Chat
+1. Chat UI appears only when Claude API is available
+2. User types a question about the article
+3. Question is sent with article context to Claude
+4. Response displayed in chat bubble
+5. Conversation history maintained within session
 
 ### Request Format
 ```json
@@ -106,22 +123,36 @@ Parameters:
 }
 ```
 
-### Response Handling
+### ClaudeAPIService Methods
 ```swift
-struct ClaudeResponse: Codable {
-    let content: [ClaudeContent]  // Extract text from first content block
-}
+// Check if API is reachable and authenticated
+var isAvailable: Bool { get async }
+
+// Generate article summary (max 500 tokens)
+func generateSummary(for article: Article) async throws -> String
+
+// Send chat message (max 300 tokens)
+func sendMessage(prompt: String, maxTokens: Int) async throws -> String
 ```
 
 ### UI States
+
+#### AI Summary
 - **Loading**: Purple box with spinner + "Generating AI Summary..."
 - **Success**: Purple box with sparkles icon + generated summary
 - **Fallback**: Original article content (no special styling)
 
+#### AI Chat
+- **Available**: Blue-themed chat box with input field
+- **User Message**: Blue bubble, right-aligned
+- **Assistant Message**: Gray bubble, left-aligned
+- **Loading**: "Thinking..." with spinner
+- **Hidden**: Chat not shown if API unavailable
+
 ### Error Handling
-- Network errors → Fallback to original content
-- Invalid API key → Fallback to original content
-- Timeout (30s) → Fallback to original content
+- Network errors → Fallback to original content / error message in chat
+- Invalid API key → Fallback to original content / hide chat
+- Timeout (30s) → Fallback to original content / error message in chat
 - All failures are silent (logged to console only)
 
 ## Code Style
