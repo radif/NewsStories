@@ -10,6 +10,9 @@ import SwiftUI
 struct ArticleDetailView: View {
     let article: Article
     @State private var showWebView = false
+    @State private var aiSummary: String?
+    @State private var isLoadingSummary = false
+    @State private var useAISummary = false
 
     var body: some View {
         ScrollView {
@@ -46,21 +49,8 @@ struct ArticleDetailView: View {
                             .foregroundStyle(.secondary)
                     }
 
-                    // Content
-                    Text(article.displayContent)
-                        .font(.body)
-                        .lineSpacing(6)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    // Description (if different from content)
-                    if let description = article.description,
-                       description != article.content {
-                        Text(description)
-                            .font(.body)
-                            .foregroundStyle(.secondary)
-                            .lineSpacing(4)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
+                    // AI Summary or Original Content
+                    contentSection
 
                     Spacer(minLength: 20)
 
@@ -87,6 +77,101 @@ struct ArticleDetailView: View {
                 ArticleWebView(url: url, title: article.source.name)
             }
         }
+        .task {
+            await loadAISummary()
+        }
+    }
+
+    // MARK: - Content Section
+
+    @ViewBuilder
+    private var contentSection: some View {
+        if isLoadingSummary {
+            // Loading AI Summary
+            VStack(spacing: 12) {
+                HStack {
+                    Image(systemName: "sparkles")
+                        .foregroundStyle(.purple)
+                    Text("Generating AI Summary...")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 20)
+            }
+            .padding()
+            .background(Color.purple.opacity(0.1))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        } else if let summary = aiSummary, useAISummary {
+            // AI Summary
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Image(systemName: "sparkles")
+                        .foregroundStyle(.purple)
+                    Text("AI Summary")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.purple)
+                }
+
+                Text(summary)
+                    .font(.body)
+                    .lineSpacing(6)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding()
+            .background(Color.purple.opacity(0.1))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        } else {
+            // Original Content
+            originalContent
+        }
+    }
+
+    @ViewBuilder
+    private var originalContent: some View {
+        Text(article.displayContent)
+            .font(.body)
+            .lineSpacing(6)
+            .fixedSize(horizontal: false, vertical: true)
+
+        // Description (if different from content)
+        if let description = article.description,
+           description != article.content {
+            Text(description)
+                .font(.body)
+                .foregroundStyle(.secondary)
+                .lineSpacing(4)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    // MARK: - Load AI Summary
+
+    private func loadAISummary() async {
+        isLoadingSummary = true
+
+        // Check if Claude API is available
+        let isAvailable = await ClaudeAPIService.shared.isAvailable
+
+        guard isAvailable else {
+            isLoadingSummary = false
+            useAISummary = false
+            return
+        }
+
+        do {
+            let summary = try await ClaudeAPIService.shared.generateSummary(for: article)
+            aiSummary = summary
+            useAISummary = true
+        } catch {
+            print("Failed to generate AI summary: \(error.localizedDescription)")
+            useAISummary = false
+        }
+
+        isLoadingSummary = false
     }
 
     // MARK: - Featured Image
