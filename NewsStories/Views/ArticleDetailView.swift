@@ -158,12 +158,15 @@ struct ArticleDetailView: View {
 
     private func loadAISummary() async {
         isLoadingSummary = true
+        print("ArticleDetailView: Starting AI summary load...")
 
         // Check if Claude API is available
         let isAvailable = await ClaudeAPIService.shared.isAvailable
         isClaudeAvailable = isAvailable
+        print("ArticleDetailView: Claude API available = \(isAvailable)")
 
         guard isAvailable else {
+            print("ArticleDetailView: Claude API not available, falling back to original content")
             isLoadingSummary = false
             useAISummary = false
             return
@@ -173,8 +176,9 @@ struct ArticleDetailView: View {
             let summary = try await ClaudeAPIService.shared.generateSummary(for: article)
             aiSummary = summary
             useAISummary = true
+            print("ArticleDetailView: AI summary generated successfully")
         } catch {
-            print("Failed to generate AI summary: \(error.localizedDescription)")
+            print("ArticleDetailView: Failed to generate AI summary: \(error.localizedDescription)")
             useAISummary = false
         }
 

@@ -31,8 +31,15 @@ final class ClaudeAPIService {
 
     var isAvailable: Bool {
         get async {
-            guard isOnline else { return false }
-            guard let key = try? apiKey else { return false }
+            guard isOnline else {
+                print("ClaudeAPIService: Device is offline")
+                return false
+            }
+            guard let key = try? apiKey else {
+                print("ClaudeAPIService: Failed to get API key from Config")
+                return false
+            }
+            print("ClaudeAPIService: API key loaded, checking availability...")
 
             // Quick ping to check if API is reachable
             guard let url = URL(string: baseURL) else { return false }
@@ -53,12 +60,19 @@ final class ClaudeAPIService {
             request.httpBody = try? JSONSerialization.data(withJSONObject: body)
 
             do {
-                let (_, response) = try await session.data(for: request)
+                let (data, response) = try await session.data(for: request)
                 if let httpResponse = response as? HTTPURLResponse {
+                    print("ClaudeAPIService: Availability check status code = \(httpResponse.statusCode)")
+                    if httpResponse.statusCode != 200 {
+                        if let body = String(data: data, encoding: .utf8) {
+                            print("ClaudeAPIService: Error response = \(body)")
+                        }
+                    }
                     return httpResponse.statusCode == 200
                 }
                 return false
             } catch {
+                print("ClaudeAPIService: Availability check error = \(error.localizedDescription)")
                 return false
             }
         }

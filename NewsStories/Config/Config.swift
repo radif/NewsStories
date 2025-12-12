@@ -23,11 +23,19 @@ enum Config {
     }
 
     private static var secrets: [String: Any]? = {
-        guard let url = Bundle.main.url(forResource: "Secrets", withExtension: "plist"),
-              let data = try? Data(contentsOf: url),
-              let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
+        guard let url = Bundle.main.url(forResource: "Secrets", withExtension: "plist") else {
+            print("Config: Secrets.plist not found in bundle")
             return nil
         }
+        guard let data = try? Data(contentsOf: url) else {
+            print("Config: Could not read Secrets.plist data")
+            return nil
+        }
+        guard let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
+            print("Config: Could not parse Secrets.plist")
+            return nil
+        }
+        print("Config: Secrets.plist loaded successfully with keys: \(plist.keys)")
         return plist
     }()
 
