@@ -2,6 +2,13 @@
 
 A News Reader iOS and watchOS application built with SwiftUI that fetches and displays articles from NewsAPI.org, featuring AI-powered summaries and chat using Claude API.
 
+## Highlights
+
+- **AI News Digest** - Get an AI-generated summary of all top headlines as soon as you open the app. Tap to read the full digest, listen with text-to-speech, or ask follow-up questions.
+- **Article AI Summary** - Each article gets an intelligent AI summary so you can quickly understand the key points.
+- **AI Chat** - Ask questions about any article or the daily news digest and get context-aware answers.
+- **watchOS Companion** - Full-featured Apple Watch app with voice input, scribble, and optimized UI.
+
 ## Screenshots
 
 ### News Feed

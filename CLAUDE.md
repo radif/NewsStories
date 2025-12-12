@@ -24,15 +24,18 @@ NewsStories/
 ├── Models/           # Data models (Article, NewsResponse, Source)
 ├── Services/         # Network layer
 │   ├── NewsAPIService.swift    # News feed API
-│   └── ClaudeAPIService.swift  # AI summaries API
+│   ├── ClaudeAPIService.swift  # AI summaries API
+│   └── SpeechService.swift     # Text-to-speech for AI digest
 ├── ViewModels/       # Business logic (NewsFeedViewModel)
 └── Views/            # SwiftUI views
     ├── NewsFeedView.swift
     ├── ArticleDetailView.swift
+    ├── AISummaryView.swift       # AI News Digest full view
     └── Components/   # Reusable UI components
         ├── ArticleRowView.swift   # Feed item cell
         ├── WebView.swift          # In-app browser
-        └── ArticleChatView.swift  # AI chat component
+        ├── ArticleChatView.swift  # AI chat component
+        └── DigestChatView.swift   # AI chat for news digest
 
 NewsStoriesWatch Watch App/
 ├── Config/
@@ -42,14 +45,17 @@ NewsStoriesWatch Watch App/
 │   └── Article.swift              # Data models (duplicated for watch)
 ├── Services/
 │   ├── WatchNewsAPIService.swift  # News API client
-│   └── WatchClaudeAPIService.swift # Claude API client
+│   ├── WatchClaudeAPIService.swift # Claude API client
+│   └── WatchSpeechService.swift   # Text-to-speech for AI digest
 ├── ViewModels/
 │   └── WatchNewsFeedViewModel.swift
 └── Views/
     ├── WatchNewsFeedView.swift    # Carousel news list
     ├── WatchArticleRowView.swift  # Compact list item
     ├── WatchArticleDetailView.swift # Detail + AI summary
-    └── WatchArticleChatView.swift # Quick question chat
+    ├── WatchArticleChatView.swift # Quick question chat
+    ├── WatchAISummaryView.swift   # AI News Digest full view
+    └── WatchDigestChatView.swift  # AI chat for news digest
 ```
 
 ## Key Technical Decisions
@@ -70,6 +76,12 @@ NewsStoriesWatch Watch App/
 ### Pagination
 - Infinite scroll with page-based pagination
 - NewsAPI uses `page` and `pageSize` parameters
+
+### Text-to-Speech
+- `AVSpeechSynthesizer` for reading AI digest aloud
+- Availability check before showing speaker button
+- Speaker button shows animated state while speaking
+- User can tap to interrupt speech
 
 ## API Usage Notes
 
@@ -107,11 +119,19 @@ Parameters:
 ## Claude API Integration (AI Features)
 
 ### Overview
-The app uses Claude API for two AI-powered features:
-1. **AI Summary** - Automatic article summarization
-2. **AI Chat** - Interactive Q&A about the article
+The app uses Claude API for three AI-powered features:
+1. **AI News Digest** - Automatic summary of all top headlines (shown first in feed)
+2. **AI Summary** - Automatic article summarization
+3. **AI Chat** - Interactive Q&A about articles and the daily digest
 
 ### How It Works
+
+#### AI News Digest
+1. After news articles are fetched, checks Claude API availability
+2. If available: Generates a short teaser + full digest of top headlines
+3. Displayed as first cell in the feed with purple-themed styling
+4. Tap to view full digest with text-to-speech and chat capabilities
+5. If unavailable: Digest row is hidden
 
 #### AI Summary
 1. When `ArticleDetailView` loads, it checks Claude API availability
@@ -145,6 +165,9 @@ The app uses Claude API for two AI-powered features:
 // Check if API is reachable and authenticated
 var isAvailable: Bool { get async }
 
+// Generate news digest from top headlines (returns short teaser + full digest)
+func generateNewsDigest(for articles: [Article], maxTokens: Int) async throws -> (short: String, full: String)
+
 // Generate article summary (max 500 tokens)
 func generateSummary(for article: Article) async throws -> String
 
@@ -153,6 +176,17 @@ func sendMessage(prompt: String, maxTokens: Int) async throws -> String
 ```
 
 ### UI States
+
+#### AI News Digest (Feed Cell)
+- **Checking**: Purple box with spinner + "Checking..."
+- **Loading**: Purple box with spinner + "Generating AI Summary..."
+- **Loaded**: Purple box with sparkles icon + short teaser, speaker button, "Tap to read more"
+- **Hidden**: Not shown if API unavailable
+
+#### AI News Digest (Full View)
+- Full digest text with text-to-speech support
+- Speaker button with animated state while speaking
+- "Ask AI" button to open chat about the digest
 
 #### AI Summary
 - **Loading**: Purple box with spinner + "Generating AI Summary..."
@@ -187,6 +221,7 @@ func sendMessage(prompt: String, maxTokens: Int) async throws -> String
 
 ### Overview
 The watch app provides the same core functionality optimized for the small screen:
+- **AI News Digest** as first cell in feed with text-to-speech
 - News feed browsing with category filtering
 - Article detail with AI summaries
 - Full article content viewer (native text, no WebView)
@@ -197,18 +232,27 @@ The watch app provides the same core functionality optimized for the small scree
 | Feature | iOS | watchOS |
 |---------|-----|---------|
 | Page size | 20 articles | 10 articles |
+| AI digest tokens | 800 | 400 |
 | AI summary tokens | 500 | 200 |
 | AI chat tokens | 300 | 150 |
 | Chat input | Keyboard | Voice, Scribble, Keyboard |
 | Article view | WebView in-app | Native text content |
 | List style | Plain | Carousel |
+| API timeout | 30s | 15s |
 
 ### Watch UI Components
 
 #### WatchNewsFeedView
+- AI News Digest as first cell (when available)
 - Carousel-style list for better scrolling
 - Category picker via sheet
 - Smaller thumbnails and compact text
+
+#### WatchAISummaryView
+- Full AI digest with text-to-speech support
+- Speaker button with visual feedback while speaking
+- "Ask AI" button to open digest chat sheet
+- Optimized for Digital Crown scrolling
 
 #### WatchArticleDetailView
 - Condensed layout for small screen
