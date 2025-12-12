@@ -67,6 +67,15 @@ struct WatchArticleDetailView: View {
                     .buttonStyle(.borderedProminent)
                     .tint(.blue)
                 }
+
+                // Read Full Article Button
+                if let url = article.articleURL {
+                    Link(destination: url) {
+                        Label("Read Full Article", systemImage: "safari")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.orange)
+                }
             }
             .padding(.horizontal)
         }
