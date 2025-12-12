@@ -9,7 +9,9 @@
       "Bash(git push:*)",
       "Bash(git rm:*)",
       "Bash(git commit:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(python3:*)",
+      "Bash(pip3 install:*)"
     ]
   }
 }
